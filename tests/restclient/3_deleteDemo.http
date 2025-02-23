@@ -1,0 +1,62 @@
+@host = http://localhost:3000
+
+# ----------------------------------------------------
+# Die folgenden Tests setzen voraus, dass alle Aufrufe in
+#
+#             1_createDemo.http
+#
+# erfolgreich ausgeführt wurden. 2_updateDemo.http kann ausgeführt worden sein, das ist hier egal.
+#
+# Die folgenden Positivtests löschen nacheinander die bestehenden Daten.
+#
+# Wir gehen dabei folgende Schritte durch:
+#
+# 1. Abfragen aller Pfleger, sollte einen Pfleger anzeigen
+# 2. Abfragen aller Protokolle, sollte eine Protokoll anzeigen
+# 3. Abfragen des Protokoll-Eintrags, sollte einen Eintrag anzeigen
+# 4. Löschen des Eintrags
+# 5. Abfragen des Protokoll-Eintrags, sollte keine Eintraege mehr anzeigen
+# 6. Löschen des Protokoll
+# 7. Abfragen aller Protokolle, sollte keine Protokolle mehr anzeigen
+# 8. Löschen des Pflegers
+# 9. Abfragen aller Pfleger, sollte keine Pfleger mehr anzeigen
+
+###
+# @name getPfleger
+GET {{host}}/api/pfleger/alle
+
+###
+@pflegerId = {{getPfleger.response.body.$[0].id}}
+###
+# @name getProtokolle
+GET {{host}}/api/protokoll/alle
+
+###
+@protokollId = {{getProtokolle.response.body.$[0].id}}
+###
+# @name getEintraege
+GET {{host}}/api/protokoll/{{protokollId}}/eintraege
+
+###
+@eintragId = {{getEintraege.response.body.$[0].id}}
+###
+DELETE {{host}}/api/eintrag/{{eintragId}}
+
+###
+GET {{host}}/api/protokoll/{{protokollId}}/eintraege
+
+###
+DELETE {{host}}/api/protokoll/{{protokollId}}
+
+###
+GET {{host}}/api/protokoll/alle
+
+###
+GET {{host}}/api/pfleger/alle
+
+###
+DELETE {{host}}/api/pfleger/{{pflegerId}}
+
+###
+GET {{host}}/api/pfleger/alle
+

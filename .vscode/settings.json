@@ -1,0 +1,21 @@
+{
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "jest.runMode": {
+      "type": "on-save",
+      "testFileOnly": true,
+      "deferred": true
+    },
+    "jest.outputConfig": {
+      "revealOn": "demand",
+      "revealWithFocus": "none",
+      "clearOnRun": "none"
+    },
+    // this requires the following setting as well:
+    "testing.openTesting": "neverOpen",
+    // disable copilot
+    "github.copilot.editor.enableAutoCompletions": false,
+    "github.copilot.enable": {
+        "*": false
+    },
+    "testing.automaticallyOpenTestResults": "neverOpen"
+  }

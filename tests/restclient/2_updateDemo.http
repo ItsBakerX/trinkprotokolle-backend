@@ -1,0 +1,72 @@
+@host = http://localhost:3000
+
+# ----------------------------------------------------
+# Die folgenden Tests setzen voraus, dass alle Aufrufe in
+#
+#             1_createDemo.http
+#
+# erfolgreich ausgeführt wurden (und 3_deleteDemo.http nicht ausgeführt wurde).
+#
+# Die folgenden Positivtests ändern die bestehenden Daten.
+#
+# Wir gehen dabei folgende Schritte durch:
+#
+# 1. Abfragen aller Pfleger (zeigt dann den erzeugen "Hofrat Behrens")
+# 2. Ändern des Names in "Dr. Behrens"
+# 3. Abfragen aller Pfleger (zeigt dann "Dr. Behrens")
+# 4. Abfragen aller Protokolle (zeigt eins vom 1.10.1912)
+# 5. Ändern des Datums im Protokoll auf den 13.11.1912
+# 6. Abfragen aller Protokolle
+# 8. Abfragen des Protokolls mit dem Eintrag (zeigt Eintrag)
+# 5. Ändern des Getraenks
+# 8. Abfragen des Protokolls mit der Eintrag (zeigt nun Eintrag "WEsspresso")
+#
+###
+# @name getPfleger
+GET {{host}}/api/pfleger/alle
+
+###
+@pflegerId = {{getPfleger.response.body.$[0].id}}
+###
+PUT {{host}}/api/pfleger/{{pflegerId}}
+Content-Type: application/json
+
+{ "id":"{{pflegerId}}", "name": "Dr. Behrens" }
+
+###
+GET {{host}}/api/pfleger/alle
+
+###
+# @name getProtokolle
+GET {{host}}/api/protokoll/alle
+
+###
+@protokollId = {{getProtokolle.response.body.$[0].id}}
+@patientId = {{getProtokolle.response.body.$[0].patient}}
+###
+PUT {{host}}/api/protokoll/{{protokollId}}
+Content-Type: application/json
+
+{ "id": "{{protokollId}}", "patient": "{{patientId}}", "ersteller": "{{pflegerId}}", "datum": "13.11.1912", "public": true}
+
+###
+GET {{host}}/api/protokoll/alle
+
+###
+# @name getEintraege
+GET {{host}}/api/protokoll/{{protokollId}}/eintraege
+
+###
+@eintragId = {{getEintraege.response.body.$[0].id}}
+###
+
+PUT {{host}}/api/eintrag/{{eintragId}}
+Content-Type: application/json
+
+{ "id":"{{eintragId}}", "getraenk": "WEspresso", "menge": "50"}
+
+###
+GET {{host}}/api/protokoll/{{protokollId}}/eintraege
+
+###
+

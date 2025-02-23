@@ -1,0 +1,67 @@
+@host = http://localhost:3000
+
+# ----------------------------------------------------
+# Positivtests, lassen sich der Reihenfolge nach
+# aufrufen.
+# Wir gehen dabei folgende Schritte durch:
+#
+# 1. Abfragen aller Pfleger (zeigt nichts an)
+# 2. Erzeugen eines Pflegers
+# 3. Abfragen aller Pfleger (zeigt dann den erzeugen Pfleger)
+# 4. Erzeugen einer Protokoll
+# 5. Abfragen aller Protokolle (zeigt dann die erzeugte Protokoll)
+# 6. Erzeugen eines Eintrags
+# 7. Abfragen aller Protokolle (zeigt dann die erzeugte Protokolle)
+# 8. Abfragen des Protokolls mit dem Eintrag (zeigt dann den erzeugten Eintrag)
+#
+# Wir haben also einen Pfleger, ein Protokoll und einen Eintrag erzeugt.
+
+###
+GET {{host}}/api/pfleger/alle
+
+###
+# @name postedPfleger
+POST {{host}}/api/pfleger/
+Content-Type: application/json
+
+{ "name": "Hofrat Behrens", "password": "abc", "admin": false}
+
+###
+@pflegerId = {{postedPfleger.response.body.$.id}}
+###
+GET {{host}}/api/pfleger/alle
+
+###
+
+# @name postedProtokoll
+POST {{host}}/api/protokoll/
+Content-Type: application/json
+
+{ "patient": "H. Castorp", "datum": "01.10.1912", "public": true, "ersteller": "{{pflegerId}}"}
+
+###
+GET {{host}}/api/protokoll/alle
+
+###
+@protokollId = {{postedProtokoll.response.body.$.id}}
+###
+
+GET {{host}}/api/protokoll/{{protokollId}}/eintraege
+
+###
+
+# @name postedEintrag
+POST {{host}}/api/eintrag
+Content-Type: application/json
+
+{ "getraenk": "BHTee", "menge": "100", "ersteller": "{{pflegerId}}" , "protokoll": "{{protokollId}}"}
+
+###
+@eintragId = {{postedEintrag.response.body.$.id}}
+###
+GET {{host}}/api/eintrag/{{eintragId}}
+
+###
+GET {{host}}/api/protokoll/alle
+
+###
